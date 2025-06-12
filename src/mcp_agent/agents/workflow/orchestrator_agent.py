@@ -19,12 +19,14 @@ from mcp_agent.agents.workflow.orchestrator_models import (
     TaskWithResult,
     format_plan_result,
     format_step_result_text,
+    format_step_result_xml,
 )
 from mcp_agent.agents.workflow.orchestrator_prompts import (
     FULL_PLAN_PROMPT_TEMPLATE,
     ITERATIVE_PLAN_PROMPT_TEMPLATE,
     SYNTHESIZE_INCOMPLETE_PLAN_TEMPLATE,
     SYNTHESIZE_PLAN_PROMPT_TEMPLATE,
+    SYNTHESIZE_STEP_PROMPT_TEMPLATE,
     TASK_PROMPT_TEMPLATE,
 )
 from mcp_agent.core.agent_types import AgentConfig, AgentType
@@ -343,7 +345,7 @@ class OrchestratorAgent(BaseAgent):
             task, future_obj = future
             try:
                 result = await future_obj
-                result_text = result.all_text()
+                result_text = result.last_text()
 
                 # Create task result
                 task_model = task.model_dump()
@@ -380,8 +382,20 @@ class OrchestratorAgent(BaseAgent):
                 )
             )
 
-        # Format step result
-        step_result.result = format_step_result_text(step_result)
+        # Summarize the step results to keep context concise
+        summary_prompt = SYNTHESIZE_STEP_PROMPT_TEMPLATE.format(
+            step_result=format_step_result_xml(step_result)
+        )
+        try:
+            step_summary = await self._planner_generate_str(
+                summary_prompt, request_params.model_copy(update={"max_iterations": 1})
+            )
+            step_result.result = step_summary
+            step_result.task_results = []  # remove task results to keep context concise
+        except Exception as e:
+            self.logger.error(f"Failed to summarize step results: {str(e)}")
+            step_result.result = format_step_result_text(step_result)
+
         return step_result
 
     async def _get_full_plan(
