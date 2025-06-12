@@ -343,7 +343,7 @@ class OrchestratorAgent(BaseAgent):
             task, future_obj = future
             try:
                 result = await future_obj
-                result_text = result.all_text()
+                result_text = result.last_text()
 
                 # Create task result
                 task_model = task.model_dump()
