@@ -85,6 +85,7 @@ class ModelFactory:
         "o1-mini": Provider.OPENAI,
         "o1": Provider.OPENAI,
         "o1-preview": Provider.OPENAI,
+        "o3": Provider.OPENAI,
         "o3-mini": Provider.OPENAI,
         "claude-3-haiku-20240307": Provider.ANTHROPIC,
         "claude-3-5-haiku-20241022": Provider.ANTHROPIC,
