@@ -46,7 +46,7 @@ class ConsoleDisplay:
 
         if self.config and self.config.logger.truncate_tools:
             if len(str(result.content)) > 360:
-                panel.height = 8
+                panel.height = 18
 
         console.console.print(panel, markup=self._markup)
         console.console.print("\n")
@@ -67,7 +67,7 @@ class ConsoleDisplay:
 
         if self.config and self.config.logger.truncate_tools:
             if len(str(result)) > 360:
-                panel.height = 8
+                panel.height = 18
 
         console.console.print(panel, markup=self._markup)
         console.console.print("\n")
